@@ -1,17 +1,23 @@
 import React, { useState } from "react";
-import { pipe } from "fp-ts/lib/function";
+import * as E from 'fp-ts/Either'
+import { flow } from "fp-ts/lib/function";
+import * as t from 'io-ts';
 
 import Header from "./components/Header/Header.view";
 import Footer from "./components/Footer/Footer.view";
-import { fetchData, saveToDB } from "./helpers";
+import { fetchConfig, saveToDB } from "./helpers";
 
 import "./App.scss";
 import Tasks from "./components/Tasks/Tasks.view";
 
-type Config = {
-  darkModeFlag: boolean,
-  hideCompletedTasksFlag: boolean
-}
+
+const Config = t.type({
+  darkModeFlag: t.boolean,
+  hideCompletedTasksFlag: t.boolean
+});
+
+export type Config = t.TypeOf<typeof Config>;
+
 
 function App() {
   const [config, setConfig] = useState<Config>({
@@ -24,13 +30,19 @@ function App() {
     loading || saveToDB("config", config);
   }, [loading, config]);
 
-  React.useEffect(() => {
-    pipe(
-      fetchData<Config>("config"),
-      setConfig,
-      () => setLoading(false)
+  React.useEffect(flow(
+    fetchConfig,
+    Config.decode,
+    E.fold(
+      errors => {
+        console.error(errors);
+      },
+      config => {
+        setConfig(config);
+        setLoading(false)
+      }
     )
-  }, []);
+  ), []);
 
   const toggleDarkMode = () => setConfig({ ...config, darkModeFlag: !config.darkModeFlag })
   const toggleCompletedTasks = () => setConfig({ ...config, hideCompletedTasksFlag: !config.hideCompletedTasksFlag })

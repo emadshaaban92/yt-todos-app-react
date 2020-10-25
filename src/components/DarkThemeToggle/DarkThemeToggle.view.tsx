@@ -1,31 +1,23 @@
 import React from "react";
 
 import "./DarkThemeToggle.style.scss";
-import { saveToDB } from "../../helpers";
 
 type Props = {
   darkModeFlag: boolean;
-  setDarkModeFlag: (flag: boolean) => void;
+  toggleDarkMode: () => void;
 };
-const DarkThemeToggle = ({ darkModeFlag, setDarkModeFlag }: Props) => {
-  const toggleDarkMode = () => {
-    const newData = !darkModeFlag;
+const DarkThemeToggle = ({ darkModeFlag, toggleDarkMode }: Props) => {
 
-    setDarkModeFlag(newData);
-    saveToDB("darkModeFlag", newData);
-  };
-
-  const getElementClasses = `DarkThemeToggle ${
-    darkModeFlag ? "DarkThemeToggle--isActive" : ""
-  }`;
+  const getElementClasses = `DarkThemeToggle ${darkModeFlag ? "DarkThemeToggle--isActive" : ""
+    }`;
 
   return (
     <div className={getElementClasses} onClick={toggleDarkMode}>
       {darkModeFlag ? (
         <span>إيقاف الوضع الليلي</span>
       ) : (
-        <span>تفعيل الوضع الليلي</span>
-      )}
+          <span>تفعيل الوضع الليلي</span>
+        )}
     </div>
   );
 };

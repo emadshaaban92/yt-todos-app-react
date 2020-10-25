@@ -6,14 +6,14 @@ import "./Header.style.scss";
 
 type Props = {
   darkModeFlag: boolean;
-  setDarkModeFlag: (flag: boolean) => void;
+  toggleDarkMode: () => void;
 };
-const Header = ({ darkModeFlag, setDarkModeFlag }: Props) => {
+const Header = ({ darkModeFlag, toggleDarkMode }: Props) => {
   return (
     <header className="Header">
       <DarkThemeToggle
         darkModeFlag={darkModeFlag}
-        setDarkModeFlag={setDarkModeFlag}
+        toggleDarkMode={toggleDarkMode}
       />
       <SocialLinks />
     </header>

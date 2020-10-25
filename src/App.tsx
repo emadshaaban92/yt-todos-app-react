@@ -1,23 +1,49 @@
 import React, { useState } from "react";
+import { pipe } from "fp-ts/lib/function";
+
 import Header from "./components/Header/Header.view";
 import Footer from "./components/Footer/Footer.view";
-import { fetchData } from "./helpers";
+import { fetchData, saveToDB } from "./helpers";
 
 import "./App.scss";
 import Tasks from "./components/Tasks/Tasks.view";
 
-function App() {
-  const [darkModeFlag, setDarkModeFlag] = useState<boolean>(
-    fetchData("darkModeFlag")
-  );
+type Config = {
+  darkModeFlag: boolean,
+  hideCompletedTasksFlag: boolean
+}
 
-  const getAppClasses = `App ${darkModeFlag ? "App--isDark" : ""}`;
+function App() {
+  const [config, setConfig] = useState<Config>({
+    darkModeFlag: false,
+    hideCompletedTasksFlag: false
+  });
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    loading || saveToDB("config", config);
+  }, [loading, config]);
+
+  React.useEffect(() => {
+    pipe(
+      fetchData<Config>("config"),
+      setConfig,
+      () => setLoading(false)
+    )
+  }, []);
+
+  const toggleDarkMode = () => setConfig({ ...config, darkModeFlag: !config.darkModeFlag })
+  const toggleCompletedTasks = () => setConfig({ ...config, hideCompletedTasksFlag: !config.hideCompletedTasksFlag })
+
+  const getAppClasses = `App ${config.darkModeFlag ? "App--isDark" : ""}`;
 
   return (
     <main className={getAppClasses}>
-      <Header darkModeFlag={darkModeFlag} setDarkModeFlag={setDarkModeFlag} />
+      <Header darkModeFlag={config.darkModeFlag} toggleDarkMode={toggleDarkMode} />
       <div className="App__wrapper">
-        <Tasks />
+        <Tasks
+          hideCompletedTasksFlag={config.hideCompletedTasksFlag}
+          toggleCompletedTasks={toggleCompletedTasks} />
         <Footer />
       </div>
     </main>
